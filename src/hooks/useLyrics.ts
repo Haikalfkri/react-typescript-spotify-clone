@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { LyricLine, Track } from "../types";
 import { fetchLyrics } from "../services/lyrics";
+import { useLyricsIndex } from "../store/lyricsIndexStore";
 
 interface LyricsState {
   status: "idle" | "loading" | "done" | "error";
@@ -24,7 +25,12 @@ export function useLyrics(track: Track | null): LyricsState {
     const controller = new AbortController();
 
     fetchLyrics(track, controller.signal)
-      .then((r) => setResult({ trackId: track.id, status: "done", ...r }))
+      .then((r) => {
+        setResult({ trackId: track.id, status: "done", ...r });
+        if (track.source === "local") {
+          useLyricsIndex.getState().save(track.id, r);
+        }
+      })
       .catch((e: Error) => {
         if (e.name !== "AbortError") {
           setResult({ trackId: track.id, status: "error", synced: [], plain: null });

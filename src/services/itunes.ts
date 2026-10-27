@@ -19,7 +19,6 @@ function mapTrack(r: ITunesResult): Track {
         title: r.trackName,
         artist: r.artistName,
         album: r.collectionName ?? "Single",
-        // iTunes kasih 100x100, kita minta versi lebih besar
         cover: r.artworkUrl100.replace("100x100bb", "400x400bb"),
         previewUrl: r.previewUrl ?? "",
         durationMs: r.trackTimeMillis ?? 0,

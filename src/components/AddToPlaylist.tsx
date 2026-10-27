@@ -11,7 +11,6 @@ export default function AddToPlaylist({ track }: { track: Track }) {
   const addToPlaylist = useLibraryStore((s) => s.addToPlaylist);
   const createPlaylist = useLibraryStore((s) => s.createPlaylist);
 
-  // tutup dropdown kalau klik di luar
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
@@ -30,7 +29,6 @@ export default function AddToPlaylist({ track }: { track: Track }) {
   };
 
   return (
-    // stopPropagation supaya klik di sini tidak ikut memutar lagu
     <div className="add-pl" ref={ref} onClick={(e) => e.stopPropagation()}>
       <button
         className="icon-btn"

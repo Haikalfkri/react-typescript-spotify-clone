@@ -16,7 +16,7 @@ export interface LyricsResult {
 
 const EMPTY: LyricsResult = { synced: [], plain: null };
 
-// Cache sederhana: lagu yang sama tidak di-fetch ulang
+// cache lagu yang sama tidak di-fetch ulang
 const cache = new Map<number, LyricsResult>();
 
 function toResult(r: LrcLibItem | null | undefined): LyricsResult {
@@ -56,7 +56,6 @@ function sleep(ms: number, signal?: AbortSignal): Promise<void> {
   });
 }
 
-// GET JSON dengan retry untuk error server (5xx). 404 -> null.
 async function getJson<T>(
   url: string,
   signal?: AbortSignal,

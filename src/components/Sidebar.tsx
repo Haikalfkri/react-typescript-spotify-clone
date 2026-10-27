@@ -7,6 +7,7 @@ import {
   Plus,
   ListMusic,
   FolderOpen,
+  Quote,
 } from "lucide-react";
 import { useLibraryStore } from "../store/libraryStore";
 
@@ -55,6 +56,10 @@ export default function Sidebar() {
 
         <NavLink to="/local" className={linkClass}>
           <FolderOpen size={20} /> File Lokal
+        </NavLink>
+
+        <NavLink to="/lyric-search" className={linkClass}>
+          <Quote size={20} /> Cari Lirik
         </NavLink>
         {playlists.map((p) => (
           <NavLink key={p.id} to={`/playlist/${p.id}`} className={linkClass}>

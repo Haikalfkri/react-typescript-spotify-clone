@@ -23,7 +23,7 @@ interface PlayerState {
   repeat: RepeatMode;
   lyricsOpen: boolean;
 
-  playTrack: (track: Track, queue?: Track[]) => void;
+  playTrack: (track: Track, queue?: Track[], seekTo?: number) => void;
   togglePlay: () => void;
   next: (auto?: boolean) => void;
   prev: () => void;
@@ -35,14 +35,15 @@ interface PlayerState {
 }
 
 export const usePlayerStore = create<PlayerState>((set, get) => {
-  // Token untuk membatalkan pemuatan lama kalau user cepat-cepat ganti lagu
+  let pendingSeek: number | null = null;
   let playToken = 0;
 
-  const startAt = (index: number) => {
+  const startAt = (index: number, seekTo?: number) => {
     const track = get().queue[index];
     if (!track) return;
 
     const token = ++playToken;
+    pendingSeek = seekTo ?? null;
     set({ current: track, index, currentTime: 0, duration: 0 });
 
     const begin = (src: string) => {
@@ -51,13 +52,13 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
       useLibraryStore.getState().addToHistory(track);
     };
 
-    // Lagu iTunes: URL langsung
+    // lagu iTunes URL langsung
     if (track.source !== "local") {
       begin(track.previewUrl);
       return;
     }
 
-    // Lagu lokal: ambil file dari IndexedDB dulu
+    // lagu lokal ambil file dari IndexedDB dulu
     getLocalAudioUrl(track.id).then((url) => {
       if (token !== playToken) return; // sudah ganti lagu, abaikan
       if (url) {
@@ -71,7 +72,13 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
 
   // sinkronkan state dengan event dari <audio>
   audio.addEventListener("timeupdate", () => set({ currentTime: audio.currentTime }));
-  audio.addEventListener("loadedmetadata", () => set({ duration: audio.duration }));
+  audio.addEventListener("loadedmetadata", () => {
+    set({ duration: audio.duration });
+    if (pendingSeek !== null) {
+      audio.currentTime = pendingSeek;
+      pendingSeek = null;
+    }
+  });
   audio.addEventListener("play", () => set({ isPlaying: true }));
   audio.addEventListener("pause", () => set({ isPlaying: false }));
   audio.addEventListener("ended", () => {
@@ -95,11 +102,11 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
     repeat: "off",
     lyricsOpen: false,
 
-    playTrack: (track, queue) => {
+    playTrack: (track, queue, seekTo) => {
       const newQueue = queue && queue.length > 0 ? queue : [track];
       const idx = newQueue.findIndex((t) => t.id === track.id);
       set({ queue: newQueue });
-      startAt(idx === -1 ? 0 : idx);
+      startAt(idx === -1 ? 0 : idx, seekTo);
     },
 
     togglePlay: () => {

@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import type { Track } from "../types";
 import { deleteAudio } from "../services/localDb";
 import { useLibraryStore } from "./libraryStore";
+import { useLyricsIndex } from "./lyricsIndexStore";
 
 interface LocalState {
   tracks: Track[];
@@ -24,6 +25,7 @@ export const useLocalStore = create<LocalState>()(
       removeTrack: (track) => {
         void deleteAudio(track.id); // hapus file dari IndexedDB
         useLibraryStore.getState().purgeTrack(track.id); // hapus dari like/history/playlist
+        useLyricsIndex.getState().remove(track.id);
         set((s) => ({ tracks: s.tracks.filter((t) => t.id !== track.id) }));
       },
     }),

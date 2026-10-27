@@ -8,6 +8,7 @@ import Liked from "./pages/Liked";
 import History from "./pages/History";
 import PlaylistPage from "./pages/PlaylistPage";
 import LocalFiles from "./pages/LocalFiles";
+import LyricSearch from "./pages/LyricSearch";
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
             <Route path="/history" element={<History />} />
             <Route path="/playlist/:id" element={<PlaylistPage />} />
             <Route path="/local" element={<LocalFiles />} />
+            <Route path="/lyric-search" element={<LyricSearch />} />
           </Routes>
         </main>
         <Player />

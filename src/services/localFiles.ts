@@ -4,7 +4,7 @@ import { saveAudio } from "./localDb";
 
 export const LOCAL_ALBUM = "File Lokal";
 
-// ID negatif hasil hash: file yang sama selalu dapat ID yang sama (tidak duplikat)
+// file yang sama selalu dapat ID yang sama (tidak duplikat)
 function makeId(file: File): number {
   const str = `${file.name}|${file.size}|${file.lastModified}`;
   let h = 0;
@@ -14,7 +14,7 @@ function makeId(file: File): number {
   return -(Math.abs(h) + 1);
 }
 
-// Fallback kalau tag kosong: "Artis - Judul.mp3" -> { artist, title }
+// "Artis - Judul.mp3" -> { artist, title }
 function fromFilename(name: string): { artist: string; title: string } {
   const base = name.replace(/\.[^.]+$/, "").replace(/_/g, " ").trim();
   const parts = base.split(/\s+-\s+/);
@@ -24,7 +24,7 @@ function fromFilename(name: string): { artist: string; title: string } {
   return { artist: "Unknown Artist", title: base };
 }
 
-// Fallback durasi lewat elemen <audio>
+// fallback durasi lewat <audio>
 function readDuration(file: File): Promise<number> {
   return new Promise((resolve) => {
     const a = new Audio();
@@ -40,7 +40,6 @@ function readDuration(file: File): Promise<number> {
   });
 }
 
-// Cover dari tag -> JPEG 300x300 (data URL) agar ringan dan aman disimpan
 async function coverToDataUrl(blob: Blob): Promise<string> {
   const bmp = await createImageBitmap(blob);
   const size = 300;
@@ -50,14 +49,12 @@ async function coverToDataUrl(blob: Blob): Promise<string> {
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Canvas tidak tersedia");
 
-  // crop tengah supaya persegi
   const s = Math.min(bmp.width, bmp.height);
   ctx.drawImage(bmp, (bmp.width - s) / 2, (bmp.height - s) / 2, s, s, 0, 0, size, size);
   bmp.close();
   return canvas.toDataURL("image/jpeg", 0.82);
 }
 
-// Kalau lagu tidak punya cover: kotak berwarna dengan huruf pertama judul
 function placeholderCover(seed: string): string {
   const hue = [...seed].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
   const first = seed.trim()[0] ?? "";
@@ -67,7 +64,11 @@ function placeholderCover(seed: string): string {
     `<rect width="300" height="300" fill="hsl(${hue},45%,35%)"/>` +
     `<text x="150" y="190" font-size="120" font-family="sans-serif" font-weight="700" ` +
     `text-anchor="middle" fill="white">${letter}</text></svg>`;
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  const encoded = encodeURIComponent(svg).replace(
+    /[!'()*]/g,
+    (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`
+  );
+  return `data:image/svg+xml;charset=utf-8,${encoded}`;
 }
 
 export function isAudioFile(file: File): boolean {
@@ -95,7 +96,6 @@ export async function importLocalFile(file: File): Promise<Track> {
 
     const pic = selectCover(meta.common.picture);
     if (pic) {
-      // new Uint8Array(...) menyalin data agar tipenya cocok untuk Blob
       cover = await coverToDataUrl(new Blob([new Uint8Array(pic.data)], { type: pic.format }));
     }
   } catch (e) {
@@ -104,7 +104,7 @@ export async function importLocalFile(file: File): Promise<Track> {
 
   if (!duration) duration = await readDuration(file);
 
-  // Simpan file audio aslinya
+  // simpan file audio aslinya
   await saveAudio(id, file);
 
   return {

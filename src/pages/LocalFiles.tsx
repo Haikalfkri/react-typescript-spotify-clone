@@ -17,13 +17,12 @@ export default function LocalFiles() {
 
   const handleFiles = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
-    e.target.value = ""; // reset supaya file yang sama bisa dipilih lagi
+    e.target.value = "";
     if (files.length === 0) return;
 
     setBusy(true);
     setMessage("");
 
-    // minta browser agar tidak menghapus data otomatis saat storage penuh
     void navigator.storage?.persist?.();
 
     const added: Track[] = [];
