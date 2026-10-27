@@ -70,7 +70,7 @@ async function getJson<T>(
   throw new Error("LRCLIB sedang bermasalah");
 }
 
-// Dari banyak kandidat, pilih yang punya lirik sinkron & durasi paling dekat
+// pilih yang punya lirik sinkron & durasi paling dekat
 function pickBest(list: LrcLibItem[], durationSec: number): LrcLibItem | undefined {
   const score = (i: LrcLibItem) =>
     (i.syncedLyrics ? 0 : 1000) + Math.abs((i.duration ?? 0) - durationSec);
@@ -101,7 +101,7 @@ export async function fetchLyrics(
       }
     } catch (e) {
       if ((e as Error).name === "AbortError") throw e;
-      serverFailed = true; // lanjut ke strategi berikutnya
+      serverFailed = true;
     }
     return null;
   };
@@ -121,7 +121,7 @@ export async function fetchLyrics(
   });
   if (exact) return exact;
 
-  // cari dengan judul & artis utama yang sudah dibersihkan
+  // cari dengan judul & artis utama
   const bySearch = await attempt(async () => {
     const p = new URLSearchParams({ track_name: title, artist_name: artist });
     const list = await getJson<LrcLibItem[]>(`${BASE_URL}/search?${p}`, signal);

@@ -653,3 +653,60 @@ input[type="range"]::-moz-range-thumb {
   max-width: 100%; max-height: 50vh; border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0,0,0,.5);
 }
+
+/* ---------- Responsive ---------- */
+
+/* Tablet / jendela sempit: sidebar hanya ikon */
+@media (max-width: 900px) {
+  .app { grid-template-columns: 76px 1fr; }
+  .sidebar-box { padding: 12px 8px; }
+  .nav-label { display: none; }
+  .logo { text-align: center; margin: 0 0 12px; }
+  .nav-link { justify-content: center; padding: 12px 0; }
+  .library-header { justify-content: center; margin: 0 0 8px; }
+
+  .row { grid-template-columns: 32px 4fr 2fr auto 52px; }
+  .page { padding: 20px 18px 32px; }
+}
+
+/* HP: sidebar jadi bar horizontal di atas */
+@media (max-width: 700px) {
+  .app {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr 90px;
+    gap: 6px;
+    padding: 6px;
+  }
+  .sidebar { flex-direction: row; overflow-x: auto; gap: 6px; }
+  .sidebar-box {
+    display: flex; flex-direction: row; align-items: center; gap: 4px;
+    padding: 6px; flex-shrink: 0;
+  }
+  .sidebar-library { flex: 0 0 auto; overflow: visible; }
+  .logo { display: none; }
+  .library-header { margin: 0; }
+  .nav-link { padding: 10px 12px; }
+
+  /* Daftar lagu */
+  .row { grid-template-columns: 28px 1fr auto 44px; gap: 8px; padding: 8px; }
+  .row-album { display: none; }
+  .collection-header h1 { font-size: 2rem; }
+  .page-title { font-size: 1.5rem; }
+
+  /* Player */
+  .player { grid-template-columns: 1fr auto; padding: 0 10px; }
+  .player-center { min-width: 0; }
+  .controls { gap: 10px; }
+  .volume { display: none; }
+
+  /* Lirik */
+  .lyric-line { font-size: 1.6rem; }
+  .lyrics-body { padding: 36vh 6%; }
+  .lyrics-header { padding: 14px 16px; }
+}
+
+/* Perangkat sentuh: tidak ada hover, jadi tombol aksi selalu terlihat */
+@media (hover: none) {
+  .row-actions { opacity: 1; }
+  .card-play { opacity: 1; transform: none; }
+}
